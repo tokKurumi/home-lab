@@ -131,5 +131,4 @@ docker compose up -d
 
 ## See Also
 
-- [Home Lab Project Instructions](.github/instructions/copilot.instructions.md)
 - [Homarr Project](https://github.com/homarr-labs/homarr)
