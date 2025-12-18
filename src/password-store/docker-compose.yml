@@ -1,6 +1,6 @@
 services:
   vaultwarden:
-    container_name: vaultwarden
+    container_name: password-store
     image: vaultwarden/server:latest
     restart: unless-stopped
     volumes:

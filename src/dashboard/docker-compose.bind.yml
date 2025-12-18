@@ -5,7 +5,7 @@
 # allowing you to store data in a specific directory (e.g., NAS, local SSD).
 
 services:
-  dashboard:
+  homarr:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOST_APPDATA:-./homarr/appdata}:/appdata
