@@ -1,0 +1,10 @@
+# Override file for bind-mount storage
+# Usage: docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+#
+# This replaces the named volume `appdata` with a host bind-mount,
+# allowing you to store data in a specific directory (e.g., NAS, local SSD).
+
+services:
+  speedtest:
+    volumes:
+      - ${HOST_SPEEDTEST_APPDATA:-./speedtest/appdata}:/appdata
