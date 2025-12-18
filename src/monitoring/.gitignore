@@ -1,0 +1,15 @@
+# Environment variables (git-ignored)
+.env
+.env.local
+.env.*.local
+
+# Bind-mount data directories
+monitoring/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

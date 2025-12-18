@@ -1,0 +1,66 @@
+services:
+  grafana:
+    image: docker.io/grafana/grafana-oss
+    container_name: grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana.ini:/etc/grafana/grafana.ini
+      - ./config/provisioning/alerting:/etc/grafana/provisioning/alerting
+      - ./config/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    restart: unless-stopped
+    networks:
+      - proxiable
+      - metrics
+    # ports:
+    #   - "3000:3000"
+
+  prometheus:
+    image: docker.io/prom/prometheus
+    container_name: prometheus
+    command: "--config.file=/etc/prometheus/prometheus.yaml"
+    volumes:
+      - ./config/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    networks:
+      - proxiable
+      - metrics
+    # ports:
+    #   - "9090:9090"
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter
+    container_name: node_exporter
+    command: "--path.rootfs=/host"
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - metrics
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /run:/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    privileged: true
+    restart: unless-stopped
+    networks:
+      - metrics
+
+networks:
+  metrics:
+    driver: bridge
+  proxiable:
+    external: true
+
+volumes:
+  grafana-data:
+  prometheus-data:
