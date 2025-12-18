@@ -5,11 +5,13 @@ A customizable, self-hosted dashboard to monitor and control home lab services.
 ## Quick Start
 
 **Default setup (named volume)**:
+
 ```bash
 docker compose up -d
 ```
 
 **With custom storage path** (e.g., NAS, external drive):
+
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
 ```
@@ -18,8 +20,8 @@ Then access the dashboard at http://localhost:7575 (if port is uncommented in `d
 
 ## Ports
 
-- **Web UI**: http://localhost:7575 (commented out by default)
-  - Uncomment `ports:` section in `docker-compose.yml` to expose
+-   **Web UI**: http://localhost:7575 (commented out by default)
+    -   Uncomment `ports:` section in `docker-compose.yml` to expose
 
 ## Configuration
 
@@ -27,13 +29,14 @@ Then access the dashboard at http://localhost:7575 (if port is uncommented in `d
 
 All configuration is in `.env`:
 
-- **`SECRET_ENCRYPTION_KEY`**: Encryption key for dashboard data (required)
-  - Generate with: `openssl rand -hex 32`
-  - See `.env.example` for details
+-   **`SECRET_ENCRYPTION_KEY`**: Encryption key for dashboard data (required)
 
-- **`HOST_APPDATA`**: Path for bind-mount storage (optional)
-  - Only needed if using `docker-compose.bind.yml` override
-  - Examples: `./homarr/appdata`, `/mnt/nas/homarr`, `C:\data\homarr`
+    -   Generate with: `openssl rand -hex 32`
+    -   See `.env.example` for details
+
+-   **`HOST_APPDATA`**: Path for bind-mount storage (optional)
+    -   Only needed if using `docker-compose.bind.yml` override
+    -   Examples: `./homarr/appdata`, `/mnt/nas/homarr`, `C:\data\homarr`
 
 See `.env.example` for all available options.
 
@@ -42,22 +45,26 @@ See `.env.example` for all available options.
 ### Default: Named Volume (Recommended for most users)
 
 Docker manages the volume automatically:
+
 ```bash
 docker compose up -d
 ```
 
 **Advantages**:
-- Zero configuration
-- Automatic backup with Docker commands
-- Portable across systems
-- Works immediately after cloning
+
+-   Zero configuration
+-   Automatic backup with Docker commands
+-   Portable across systems
+-   Works immediately after cloning
 
 **View volume location**:
+
 ```bash
 docker volume inspect appdata
 ```
 
 **Backup the volume**:
+
 ```bash
 docker run --rm -v appdata:/data -v $(pwd):/backup alpine tar czf /backup/appdata-backup.tar.gz -C /data .
 ```
@@ -67,21 +74,23 @@ docker run --rm -v appdata:/data -v $(pwd):/backup alpine tar czf /backup/appdat
 Store data in a specific directory on your host (local SSD, NAS mount, etc.):
 
 1. **Edit `.env`**:
-   ```env
-   HOST_APPDATA=/mnt/nas/homarr
-   # or for relative path:
-   # HOST_APPDATA=./homarr/appdata
-   ```
+
+    ```env
+    HOST_APPDATA=/mnt/nas/homarr
+    # or for relative path:
+    # HOST_APPDATA=./homarr/appdata
+    ```
 
 2. **Start with override**:
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-   ```
+    ```bash
+    docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+    ```
 
 **Advantages**:
-- Full control over storage location
-- Easy to back up / migrate data via filesystem commands
-- Integration with NAS (NFS, CIFS/SMB) or cloud mounts
+
+-   Full control over storage location
+-   Easy to back up / migrate data via filesystem commands
+-   Integration with NAS (NFS, CIFS/SMB) or cloud mounts
 
 ## Networking
 
@@ -96,6 +105,7 @@ docker network create proxiable
 ## Logs
 
 View container logs:
+
 ```bash
 docker compose logs -f dashboard
 ```
@@ -112,23 +122,34 @@ docker compose up -d
 
 ## Security Notes
 
-- **Never commit `.env`** to git (it's in `.gitignore`)
-- All secrets must be in `.env` (not in docker-compose files)
-- Use strong, random `SECRET_ENCRYPTION_KEY` values
-- Keep Docker daemon socket access restricted if exposing the dashboard
+-   **Never commit `.env`** to git (it's in `.gitignore`)
+-   All secrets must be in `.env` (not in docker-compose files)
+-   Use strong, random `SECRET_ENCRYPTION_KEY` values
+-   Keep Docker daemon socket access restricted if exposing the dashboard
 
 ## Troubleshooting
 
 **"Connection refused" on port 7575**:
-- Port is commented out by default. Uncomment `ports:` in `docker-compose.yml`.
+
+-   Port is commented out by default. Uncomment `ports:` in `docker-compose.yml`.
 
 **Volume permission errors**:
-- For bind mounts: ensure the host directory exists and has appropriate permissions.
-- For named volumes: check `docker volume inspect appdata` for location and access.
+
+-   For bind mounts: ensure the host directory exists and has appropriate permissions.
+-   For named volumes: check `docker volume inspect appdata` for location and access.
 
 **Network errors**:
-- Ensure `proxiable` network exists: `docker network create proxiable`
+
+-   Ensure `proxiable` network exists: `docker network create proxiable`
+
+## Reverse Proxy Integration
+
+To access the dashboard through Nginx Proxy Manager:
+
+1. Uncomment ports in docker-compose.yml to expose locally
+2. Or use Nginx as a reverse proxy with container name: `http://dashboard:7575`
+3. Ensure Nginx is in the `proxiable` network or connected to it
 
 ## See Also
 
-- [Homarr Project](https://github.com/homarr-labs/homarr)
+-   [Homarr Project](https://github.com/homarr-labs/homarr)

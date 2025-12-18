@@ -116,3 +116,11 @@ docker compose logs -f speedtest
 -   Use a reverse proxy (Nginx, Traefik) on the `proxiable` network to expose with a domain name
 -   Test results and configuration data are stored in the `appdata` volume
 -   The service is lightweight and suitable for home lab environments
+
+## Reverse Proxy Integration
+
+To access OpenSpeedTest through Nginx Proxy Manager:
+
+1. Uncomment ports in docker-compose.yml to expose locally
+2. Or use Nginx as a reverse proxy with container name: `http://speedtest:3000`
+3. Ensure Nginx is in the `proxiable` network or connected to it

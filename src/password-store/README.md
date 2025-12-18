@@ -116,3 +116,12 @@ docker compose logs -f vaultwarden
 -   Vaultwarden by default allows anyone to register. Consider setting an invitation token in `.env` to restrict access.
 -   Use a reverse proxy (Nginx, Traefik) on the `proxiable` network to securely expose with HTTPS
 -   Database is stored as SQLite in the volume; consider external PostgreSQL for larger deployments
+
+## Reverse Proxy Integration
+
+To access Vaultwarden through Nginx Proxy Manager:
+
+1. Uncomment ports in docker-compose.yml to expose locally
+2. Or use Nginx as a reverse proxy with container name: `http://vaultwarden:80`
+3. Ensure Nginx is in the `proxiable` network or connected to it
+4. **Important**: Set `VAULTWARDEN_DOMAIN` in `.env` to match your reverse proxy domain (e.g., `https://passwords.example.com`)

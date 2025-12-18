@@ -138,3 +138,11 @@ docker compose logs -f portainer
 -   Use reverse proxy for secure HTTPS access
 -   Portainer can manage multiple Docker hosts if configured
 -   The watchtower label enables automatic updates for Portainer itself
+
+## Reverse Proxy Integration
+
+To access Portainer through Nginx Proxy Manager:
+
+1. Uncomment ports in docker-compose.yml to expose locally
+2. Or use Nginx as a reverse proxy with container name: `http://portainer:9000`
+3. Ensure Nginx is in the `proxiable` network or connected to it
