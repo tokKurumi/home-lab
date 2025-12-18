@@ -1,0 +1,11 @@
+# Override file for bind-mount storage
+# Usage: docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+#
+# This replaces the named volumes `data` and `letsencrypt` with host bind-mounts,
+# allowing you to store data in specific directories (e.g., NAS, local SSD).
+
+services:
+  nginx-proxy-manager:
+    volumes:
+      - ${HOST_NGINX_PROXY_MANAGER_DATA:-./nginx-proxy-manager/data}:/data
+      - ${HOST_NGINX_PROXY_MANAGER_LETSENCRYPT:-./nginx-proxy-manager/letsencrypt}:/etc/letsencrypt
