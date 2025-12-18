@@ -1,0 +1,21 @@
+services:
+  vaultwarden:
+    container_name: vaultwarden
+    image: vaultwarden/server:latest
+    restart: unless-stopped
+    volumes:
+      - vw-data:/data/
+    env_file:
+      - .env
+    # Uncomment to expose vaultwarden on port 8000 http
+    # ports:
+    #   - '8000:80'
+    networks:
+      - proxiable
+
+volumes:
+  vw-data:
+
+networks:
+  proxiable:
+    external: true

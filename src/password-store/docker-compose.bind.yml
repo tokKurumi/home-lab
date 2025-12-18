@@ -1,0 +1,10 @@
+# Override file for bind-mount storage
+# Usage: docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+#
+# This replaces the named volume `vw-data` with a host bind-mount,
+# allowing you to store data in a specific directory (e.g., NAS, local SSD).
+
+services:
+  vaultwarden:
+    volumes:
+      - ${HOST_VW_DATA:-./vaultwarden/data}:/data/
