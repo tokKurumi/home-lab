@@ -105,9 +105,16 @@ HOST_APPDATA=/mnt/nas/homarr docker compose -f src/dashboard/docker-compose.yml 
 Each service folder must contain a `README.md` that briefly describes:
 
 1. **What it does** (1-2 sentences)
-2. **Default ports** (if exposed)
+2. **Default ports** (if exposed, with http/https protocols)
 3. **Key volumes/configuration**
 4. **Quick start** (if needed)
+5. **Reverse Proxy Integration** (mandatory section)
+
+The **Reverse Proxy Integration** section should explain:
+
+-   How to access the service through Nginx Proxy Manager
+-   Internal container name for reverse proxy setup
+-   Network requirements for reverse proxy integration
 
 Example:
 
@@ -124,7 +131,7 @@ docker compose -f src/dashboard/docker-compose.yml up -d
 
 ## Ports
 
--   Web UI: http://localhost:7575 (uncomment in docker-compose.yml to expose)
+-   Web UI: http://localhost:7575 (hidden by default, uncomment in docker-compose.yml to expose)
 
 ## Configuration
 
@@ -147,6 +154,14 @@ docker compose up -d
 # Edit .env and set HOST_APPDATA, then run:
 docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
 ```
+
+## Reverse Proxy Integration
+
+To access the dashboard through Nginx Proxy Manager:
+
+1. Uncomment ports in docker-compose.yml
+2. Or use Nginx as a reverse proxy with container name: `http://dashboard:7575`
+3. Ensure Nginx is in the `proxiable` network or connected to it
 ````
 
 ### .env.example
