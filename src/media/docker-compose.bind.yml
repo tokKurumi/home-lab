@@ -1,0 +1,54 @@
+# Bind-mount override for Media Stack
+# Use this file together with docker-compose.yml to store data on specific paths (NAS, external drive, etc.)
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+#
+# Or with environment variables:
+#   HOST_MEDIA_DATA=/mnt/nas/media docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+
+services:
+  wireguard:
+    volumes:
+      - ${HOST_WIREGUARD_CONFIG:-./media/configs/wireguard}:/config
+
+  qbittorrent:
+    volumes:
+      - ${HOST_QBITTORRENT_CONFIG:-./media/configs/qbittorrent}:/config
+      - ${HOST_MEDIA_DATA:-./media/data}:/media
+
+  prowlarr:
+    volumes:
+      - ${HOST_PROWLARR_CONFIG:-./media/configs/prowlarr}:/config
+
+  lidarr:
+    volumes:
+      - ${HOST_LIDARR_CONFIG:-./media/configs/lidarr}:/config
+      - ${HOST_MEDIA_DATA:-./media/data}:/media
+
+  radarr:
+    volumes:
+      - ${HOST_RADARR_CONFIG:-./media/configs/radarr}:/config
+      - ${HOST_MEDIA_DATA:-./media/data}:/media
+
+  sonarr:
+    volumes:
+      - ${HOST_SONARR_CONFIG:-./media/configs/sonarr}:/config
+      - ${HOST_MEDIA_DATA:-./media/data}:/media
+
+  fileflows:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${HOST_FILEFLOWS_TEMP:-./media/configs/fileflows/temp}:/temp
+      - ${HOST_FILEFLOWS_DATA:-./media/configs/fileflows/data}:/app/Data
+      - ${HOST_FILEFLOWS_COMMON:-./media/configs/fileflows/common}:/app/common
+      - ${HOST_MEDIA_DATA:-./media/data}:/media
+
+  jellyfin:
+    volumes:
+      - ${HOST_JELLYFIN_CONFIG:-./media/configs/jellyfin}:/config
+      - ${HOST_MEDIA_DATA:-./media/data}:/media
+
+  jellyseerr:
+    volumes:
+      - ${HOST_JELLYSEERR_CONFIG:-./media/configs/jellyseerr}:/app/config

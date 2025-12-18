@@ -1,0 +1,213 @@
+services:
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+    env_file:
+      - .env
+    environment:
+      - INTERNAL_SUBNET=10.13.13.0
+      - ALLOWEDIPS=0.0.0.0/0,::/0
+    volumes:
+      - wireguard-config:/config
+    ports:
+      - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # qBittorrent Web UI (via VPN)
+      - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881} # qBittorrent torrent connections TCP
+      - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881}/udp # qBittorrent torrent connections UDP
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+    networks:
+      - media_network
+      - proxiable
+
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    env_file:
+      - .env
+    environment:
+      - WEBUI_PORT=${QBIT_WEBUI_PORT:-8080}
+      - TORRENTING_PORT=${QBIT_CONNECTION_PORT:-6881}
+    volumes:
+      - qbittorrent-config:/config
+      - media-data:/media
+    ports:
+      - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881} # torrent connections TCP
+      - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881}/udp # torrent connections UDP
+    network_mode: service:wireguard
+    depends_on:
+      - wireguard
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    env_file:
+      - .env
+    volumes:
+      - prowlarr-config:/config
+    # ports:
+    #   - 9696:9696 # uncomment if you want to expose 9696 http
+    networks:
+      - media_network
+      - proxiable
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  lidarr:
+    image: linuxserver/lidarr:latest
+    container_name: lidarr
+    env_file:
+      - .env
+    volumes:
+      - lidarr-config:/config
+      - media-data:/media
+    # ports:
+    #   - 8686:8686 # uncomment if you want to expose 8686 http
+    restart: unless-stopped
+    networks:
+      - media_network
+      - proxiable
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    env_file:
+      - .env
+    volumes:
+      - radarr-config:/config
+      - media-data:/media
+    # ports:
+    #   - 7878:7878 # uncomment if you want to expose 7878 http
+    restart: unless-stopped
+    networks:
+      - media_network
+      - proxiable
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    env_file:
+      - .env
+    volumes:
+      - sonarr-config:/config
+      - media-data:/media
+    # ports:
+    #   - 8989:8989 # uncomment if you want to expose 8989 http
+    restart: unless-stopped
+    networks:
+      - media_network
+      - proxiable
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  fileflows:
+    image: revenz/fileflows:stable
+    container_name: fileflows
+    env_file:
+      - .env
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - fileflows-temp:/temp
+      - fileflows-data:/app/Data
+      - fileflows-common:/app/common
+      - media-data:/media
+    # ports:
+    #   - 19200:5000 # uncomment if you want to expose 19200 http
+    restart: unless-stopped
+    networks:
+      - media_network
+      - proxiable
+    devices:
+      - nvidia.com/gpu=all
+
+  jellyfin:
+    image: linuxserver/jellyfin:latest
+    container_name: jellyfin
+    env_file:
+      - .env
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - jellyfin-config:/config
+      - media-data:/media
+    ports:
+      # - 8096:8096 # uncomment if you want to expose 8096 http
+      - ${JELLYFIN_DISCOVERY_PORT:-7359}:7359/udp # local network discovery
+      - ${JELLYFIN_DLNA_PORT:-1900}:1900/udp # DLNA discovery
+    restart: unless-stopped
+    networks:
+      - media_network
+      - proxiable
+    devices:
+      - nvidia.com/gpu=all
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    env_file:
+      - .env
+    environment:
+      - FORCE_IPV4_FIRST=true
+    volumes:
+      - jellyseerr-config:/app/config
+    # ports:
+    #   - 5055:5055 # uncomment if you want to expose 5055 http
+    networks:
+      - media_network
+      - proxiable
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  music-bot:
+    image: ghcr.io/manuel-rw/jellyfin-discord-music-bot:latest
+    container_name: jellyfin-discord-music-bot
+    env_file:
+      - .env
+    environment:
+      - JELLYFIN_SERVER_ADDRESS=http://jellyfin:8096
+      - UPDATER_DISABLE_NOTIFICATIONS=true
+      - ALLOW_EVERYONE=true
+    restart: unless-stopped
+    networks:
+      - media_network
+    depends_on:
+      - jellyfin
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+volumes:
+  wireguard-config:
+  qbittorrent-config:
+  prowlarr-config:
+  lidarr-config:
+  radarr-config:
+  sonarr-config:
+  fileflows-temp:
+  fileflows-data:
+  fileflows-common:
+  jellyfin-config:
+  jellyseerr-config:
+  media-data:
+
+networks:
+  media_network:
+    driver: bridge
+  proxiable:
+    external: true
