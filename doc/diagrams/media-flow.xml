@@ -1,0 +1,67 @@
+<mxGraphModel dx="276" dy="333" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" background="none" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="Jellyseerr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="Jellyseerr" vertex="1">
+      <mxGeometry height="50" width="110" x="60" y="160" as="geometry" />
+    </mxCell>
+    <mxCell id="Sonarr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="Sonarr" vertex="1">
+      <mxGeometry height="50" width="110" x="240" y="80" as="geometry" />
+    </mxCell>
+    <mxCell id="Radarr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="Radarr" vertex="1">
+      <mxGeometry height="50" width="110" x="240" y="160" as="geometry" />
+    </mxCell>
+    <mxCell id="Prowlarr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef3ff;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="Prowlarr" vertex="1">
+      <mxGeometry height="50" width="110" x="240" y="270" as="geometry" />
+    </mxCell>
+    <mxCell id="qBittorrent" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="qBittorrent" vertex="1">
+      <mxGeometry height="50" width="120" x="470" y="80" as="geometry" />
+    </mxCell>
+    <mxCell id="WireGuard" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="WireGuard" vertex="1">
+      <mxGeometry height="50" width="110" x="650" y="80" as="geometry" />
+    </mxCell>
+    <mxCell id="FileStorage" parent="1" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#f0f0f0;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="File Storage" vertex="1">
+      <mxGeometry height="60" width="120" x="470" y="180" as="geometry" />
+    </mxCell>
+    <mxCell id="FileFlows" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="FileFlows" vertex="1">
+      <mxGeometry height="50" width="110" x="400" y="270" as="geometry" />
+    </mxCell>
+    <mxCell id="Jellyfin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#111111;fontSize=12;" value="Jellyfin" vertex="1">
+      <mxGeometry height="50" width="110" x="550" y="270" as="geometry" />
+    </mxCell>
+    <mxCell id="edge1" edge="1" parent="1" source="Jellyseerr" style="entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Sonarr">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge2" edge="1" parent="1" source="Jellyseerr" target="Radarr">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge4" edge="1" parent="1" source="Sonarr" style="entryX=1;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;rounded=0;curved=1;" target="Prowlarr">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="430" y="190" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge5" edge="1" parent="1" source="Radarr" style="exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="Prowlarr">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge7" edge="1" parent="1" source="Sonarr" style="entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="qBittorrent">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge7b" edge="1" parent="1" source="Radarr" style="exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="qBittorrent">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge8" edge="1" parent="1" source="qBittorrent" style="dashed=1;dashPattern=1 2;" target="WireGuard">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge9" edge="1" parent="1" source="qBittorrent" target="FileStorage">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge10" edge="1" parent="1" source="FileStorage" style="entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="FileFlows">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="edge11" edge="1" parent="1" source="FileStorage" style="entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="Jellyfin">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>
