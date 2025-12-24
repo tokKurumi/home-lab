@@ -15,7 +15,7 @@
   add-pagebreaks: true,
 )
 
-#counter(page).update(3)
+#counter(page).update(5)
 
 #abstract(
   "Docker, контейнеризация, Linux, медиа-сервер, Jellyfin, автоматизация, VPN, безопасность",
