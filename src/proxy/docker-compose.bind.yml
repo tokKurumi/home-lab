@@ -1,11 +1,18 @@
-# Override file for bind-mount storage
-# Usage: docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+# Bind-mount override for Nginx Proxy Manager (ADVANCED)
+# Use this file for maximum flexibility - configure each volume path independently
 #
-# This replaces the named volumes `data` and `letsencrypt` with host bind-mounts,
-# allowing you to store data in specific directories (e.g., NAS, local SSD).
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+#
+# Benefits:
+#   - Point each volume to different drives/NAS shares
+#   - Granular control over storage location
+#   - Can mix local and network storage
+#
+# Note: Paths match docker-compose.volumes.yml structure but allow per-volume customization
 
 services:
   nginx-proxy-manager:
     volumes:
-      - ${HOST_NGINX_PROXY_MANAGER_DATA:-./nginx-proxy-manager/data}:/data
-      - ${HOST_NGINX_PROXY_MANAGER_LETSENCRYPT:-./nginx-proxy-manager/letsencrypt}:/etc/letsencrypt
+      - ${HOST_NGINX_PROXY_MANAGER_DATA:-./docker-volumes/proxy/nginx-proxy-manager/data}:/data
+      - ${HOST_NGINX_PROXY_MANAGER_LETSENCRYPT:-./docker-volumes/proxy/nginx-proxy-manager/letsencrypt}:/etc/letsencrypt

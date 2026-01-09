@@ -4,106 +4,85 @@ A reverse proxy and SSL certificate manager for secure HTTPS access to all home 
 
 ## Quick Start
 
-**Default setup (named volumes)**:
+### Setup
 
-```bash
-docker compose up -d
-```
+1. **Create directory structure** (for volumes profile):
+   ```bash
+   ./prepare-volumes.sh
+   ```
 
-**With custom storage path** (e.g., NAS, external drive):
+2. **Start services** (choose one option below):
 
-```bash
-docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-```
+   **Option 1: Named Volumes with Custom Path** (Recommended)
+   ```bash
+   # Set HOST_VOLUMES_DIR in .env if needed
+   docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+   ```
 
-Then access the admin panel at http://localhost:81
+   **Option 2: Bind Mounts** (Alternative)
+   ```bash
+   # Set individual paths in .env
+   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+   ```
+
+   **Option 3: Docker-managed Volumes** (Not Recommended)
+   ```bash
+   docker compose up -d
+   ```
+
+Then access the admin panel at **http://localhost:81**
 
 ## Ports
 
 -   **Admin UI**: http://localhost:81
-
     -   Default credentials: `admin@example.com` / `changeme`
     -   Change immediately after first login
 
 -   **HTTP Proxy**: http://localhost:80
-
     -   Automatically redirects to HTTPS for configured hosts
 
 -   **HTTPS Proxy**: https://localhost:443
     -   Secure proxy with automatic Let's Encrypt certificate management
 
-## Configuration
+## Storage Configuration
 
-### Environment Variables
+This service supports three storage strategies:
 
-All configuration is in `.env`:
+| Strategy | Command | Data Location | Use Case |
+|----------|---------|----------------|----------|
+| **Named Volumes with Custom Path** ✅ | `docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d` | `$HOST_VOLUMES_DIR/proxy/nginx-proxy-manager/` | **Recommended** - Production and migration |
+| **Bind Mounts** | `docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d` | Custom per-volume paths in `.env` | Advanced - Full granular control |
+| **Docker-managed Volumes** ⚠️ | `docker compose up -d` | `/var/lib/docker/volumes/` | Development/testing only |
 
--   **`HOST_NGINX_PROXY_MANAGER_DATA`**: Path for bind-mount storage of configuration (optional)
+### Recommended Setup (Named Volumes)
 
-    -   Only needed if using `docker-compose.bind.yml` override
-    -   Examples: `./nginx-proxy-manager/data`, `/mnt/nas/nginx-proxy-manager/data`, `C:\data\nginx-proxy-manager`
+This approach provides:
+- ✅ Data stored on your chosen drive (external SSD, NAS, etc.)
+- ✅ Named volumes (portable, Docker-native)
+- ✅ Single configuration variable (`HOST_VOLUMES_DIR`)
+- ✅ Easy migration to new servers
 
--   **`HOST_NGINX_PROXY_MANAGER_LETSENCRYPT`**: Path for bind-mount storage of SSL certificates (optional)
+**Configuration**:
 
-    -   Only needed if using `docker-compose.bind.yml` override
-    -   Examples: `./nginx-proxy-manager/letsencrypt`, `/mnt/nas/nginx-proxy-manager/letsencrypt`
+```env
+# .env
+HOST_VOLUMES_DIR=/mnt/big-hard-drive/docker-volumes
 
--   **`ADMIN_USER`**: Initial admin email (optional, defaults to `admin@example.com`)
-
--   **`ADMIN_PASSWORD`**: Initial admin password (optional, defaults to `changeme`)
-
-See `.env.example` for all available options.
-
-## Storage
-
-### Default: Named Volumes (Recommended for most users)
-
-Docker manages the volumes automatically:
-
-```bash
-docker compose up -d
+# If not set, defaults to ./docker-volumes in current directory
 ```
 
-**Advantages**:
+**How it works**:
+- `docker-compose.yml` defines the service and volume names
+- `docker-compose.volumes.yml` maps those named volumes to paths on your disk
+- Docker creates volumes automatically at startup
+- All data persists in `$HOST_VOLUMES_DIR/proxy/nginx-proxy-manager/`
 
--   Zero configuration
--   Automatic backup with Docker commands
--   Portable across systems
--   Works immediately after cloning
-
-**View volumes**:
-
-```bash
-docker volume ls
-docker volume inspect data
-docker volume inspect letsencrypt
+**Volume locations**:
 ```
-
-**Backup the volumes**:
-
-```bash
-docker run --rm -v data:/data -v $(pwd):/backup alpine tar czf /backup/nginx-proxy-manager-data-backup.tar.gz -C /data .
-docker run --rm -v letsencrypt:/certs -v $(pwd):/backup alpine tar czf /backup/nginx-proxy-manager-letsencrypt-backup.tar.gz -C /certs .
-```
-
-### Advanced: Bind Mount (For custom storage paths)
-
-Store data in specific directories on your host (local SSD, NAS mount, etc.):
-
-1. **Edit `.env`**:
-
-    ```env
-    HOST_NPM_DATA=/mnt/nas/npm/data
-    HOST_NPM_LETSENCRYPT=/mnt/nas/npm/letsencrypt
-    # or for relative paths:
-    # HOST_NPM_DATA=./npm/data
-    # HOST_NPM_LETSENCRYPT=./npm/letsencrypt
-    ```
-
-2. **Start with override**:
-    ```bash
-    docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-    ```
+$HOST_VOLUMES_DIR/proxy/
+└── nginx-proxy-manager/
+    ├── data/          (proxy configs, databases)
+    └── letsencrypt/   (SSL certificates)
 
 **Advantages**:
 

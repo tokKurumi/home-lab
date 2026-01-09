@@ -14,19 +14,45 @@
 
 -   **Container Runtime**: Docker & Docker Compose
 -   **Infrastructure**: 100% containerized (no system-wide dependencies)
--   **Configuration**: `.env` files for secrets and local customization
+-   **Configuration**: `.env` files for secrets and local customization (optional, services use defaults)
 -   **Version Control**: Git with proper `.gitignore` exclusions
 
 ## Docker Compose Conventions
 
-### 1. Default Profile: Named Volumes (For All Users)
+### Environment Files
 
-**Use Case**: Default setup that works immediately after cloning the repo.
+All services must support running **without** `.env` file by using sensible defaults:
 
--   Docker automatically creates and manages named volumes
--   Data persists across container restarts and system reboots
--   Easy to backup/migrate with Docker CLI commands
--   No filesystem paths to configure
+```yaml
+services:
+    example:
+        env_file:
+            - path: .env
+              required: false  # Always set to false
+        environment:
+            - SOME_VAR=${SOME_VAR:-default_value}  # Always provide defaults
+```
+
+**Benefits**:
+- Users can start services immediately without configuration
+- `.env.example` documents available options
+- Production users can override with `.env` file
+
+### Storage Strategies (Three Options)
+
+Each service supports three volume strategies via compose file overrides:
+
+#### 1. Docker-Managed Named Volumes (Default, Not Recommended for Large Data)
+
+**Use Case**: Testing and small data only. Volumes stored in `/var/lib/docker/volumes/`.
+
+```bash
+docker compose -f docker-compose.yml up -d
+```
+
+#### 2. Named Volumes with Custom Path (Recommended) ✅
+
+**Use Case**: All production scenarios. Named volumes point to custom storage via `HOST_VOLUMES_DIR`.
 
 **Example `docker-compose.yml`**:
 
@@ -38,65 +64,106 @@ services:
         restart: unless-stopped
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - appdata:/appdata # Named volume (not a path)
+            - appdata:/app/config
         env_file:
             - .env
         networks:
             - proxiable
 
 volumes:
-    appdata: # Docker creates this automatically
+    appdata:  # Just names, no configuration
 
 networks:
     proxiable:
-        external: true # Assumes network exists or will be created
+        external: true
 ```
 
-**Startup**:
+**Example `docker-compose.volumes.yml` (Override)**:
+
+```yaml
+volumes:
+    appdata:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ${HOST_VOLUMES_DIR:-./docker-volumes}/dashboard/appdata
+```
+
+**Usage**:
 
 ```bash
-docker compose -f src/dashboard/docker-compose.yml up -d
+# .env should contain (optional, defaults to ./docker-volumes):
+# HOST_VOLUMES_DIR=/mnt/storage/docker-volumes
+
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
 ```
 
-### 2. Advanced Profile: Bind Mounts (For Power Users)
+**Benefits**:
+- ✅ Data stored on specified path (external drive, NAS, etc.)
+- ✅ Named volumes (portable between hosts)
+- ✅ Single environment variable to configure
+- ✅ Easy migration (change variable, copy directory)
 
-**Use Case**: Users who need data on specific storage (NAS, external drive, specific partition).
+**Default Directory Structure**:
 
--   Store container data in user-specified directories
--   Full control over storage location and lifecycle
--   Integration with network mounts (NFS, CIFS/SMB)
--   Ability to back up / move data without Docker commands
+The structure should match bind mount defaults for consistency. Example:
+
+```
+$HOST_VOLUMES_DIR/
+├── media/                    # Multi-service stacks (many related services)
+│   ├── config/
+│   │   ├── wireguard/
+│   │   ├── qbittorrent/
+│   │   └── ...
+│   ├── fileflows/
+│   └── data/                 # Shared media content
+│
+└── proxy/                    # Single-service stacks
+    └── nginx-proxy-manager/
+        ├── data/
+        └── letsencrypt/
+```
+
+**Naming Conventions**:
+- Multi-service stacks (many related services sharing storage): Use subdirectories under `$HOST_VOLUMES_DIR/<stack_name>/` for organization
+  - Example: `media/{config, fileflows, data}`
+  - Rationale: Reduces clutter, logical grouping of related files
+  
+- Single-service stacks: Use `$HOST_VOLUMES_DIR/<service_name>/<volume_name>/`
+  - Example: `proxy/nginx-proxy-manager/{data, letsencrypt}`
+  - Rationale: Clarity and consistency with service naming
+- ✅ Easy migration (copy directory, change variable)
+- ✅ Defaults to ./docker-volumes if HOST_VOLUMES_DIR not set
+
+#### 3. Direct Bind Mounts (Alternative, Verbose)
+
+**Use Case**: Users who prefer explicit path definitions per service.
+
+**IMPORTANT**: Default paths must be **identical** to docker-compose.volumes.yml. The only difference is the storage method (bind mount vs named volume) and configuration variables (individual vs unified).
 
 **Implementation via `docker-compose.bind.yml` Override**:
 
-The override file contains only the volume redefinition:
-
 ```yaml
-# docker-compose.bind.yml
 services:
     dashboard:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - ${HOST_APPDATA:-./homarr/appdata}:/appdata
+            - ${HOST_DASHBOARD_APPDATA:-./docker-volumes/dashboard/appdata}:/app/config
 ```
 
-The `.env` file provides the variable:
-
-```env
-# .env
-HOST_APPDATA=./homarr/appdata
-# Or for advanced: /mnt/nas/homarr, C:\data\homarr, etc.
-```
-
-**Startup with Bind Mount**:
+**Usage**:
 
 ```bash
-# Use bind-mount with default path
-docker compose -f src/dashboard/docker-compose.yml -f docker-compose.bind.yml up -d
-
-# Use bind-mount with custom NAS path (override via env var)
-HOST_APPDATA=/mnt/nas/homarr docker compose -f src/dashboard/docker-compose.yml -f docker-compose.bind.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
 ```
+
+**Key principle**: Both `docker-compose.volumes.yml` and `docker-compose.bind.yml` must use the **same default path structure** (e.g., `./docker-volumes/media/config/...`). This ensures:
+- Volumes profile uses `HOST_VOLUMES_DIR` (simple, one variable for all)
+- Bind profile uses individual variables like `HOST_WIREGUARD_CONFIG`, `HOST_MEDIA_DATA` (advanced, per-service flexibility)
+- Switching between storage strategies doesn't require data migration
+- Path consistency across all deployment types
+- Easy testing: use bind mounts locally, named volumes in production
 
 ## File Guidelines
 
