@@ -1,0 +1,16 @@
+# Named volume with local driver pointing to external storage
+# This file defines volumes that will be stored on the path specified by HOST_VOLUMES_DIR
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+#
+# Set HOST_VOLUMES_DIR in .env file or it will default to ./docker-volumes
+# The volume will be created automatically with the device path from HOST_VOLUMES_DIR
+
+volumes:
+  vw-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/password-store/vaultwarden

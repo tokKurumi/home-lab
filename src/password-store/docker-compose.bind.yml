@@ -1,10 +1,17 @@
-# Override file for bind-mount storage
-# Usage: docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+# Bind-mount override for Password Store (ADVANCED)
+# Use this file for maximum flexibility - configure volume paths independently
 #
-# This replaces the named volume `vw-data` with a host bind-mount,
-# allowing you to store data in a specific directory (e.g., NAS, local SSD).
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+#
+# Benefits:
+#   - Store data in a specific directory (local, NAS, cloud mount)
+#   - Full control over storage location
+#   - Can use network storage (NFS, CIFS/SMB)
+#
+# Note: Default paths match docker-compose.volumes.yml structure
 
 services:
   vaultwarden:
     volumes:
-      - ${HOST_VW_DATA:-./vaultwarden/data}:/data/
+      - ${HOST_VAULTWARDEN_DATA:-./docker-volumes/password-store/vaultwarden}:/data/

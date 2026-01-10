@@ -6,7 +6,10 @@ services:
     volumes:
       - vw-data:/data/
     env_file:
-      - .env
+      - path: .env
+        required: false
+    environment:
+      - VAULTWARDEN_DOMAIN=${VAULTWARDEN_DOMAIN:-https://passwords.lan}
     # Uncomment to expose vaultwarden on port 8000 http
     # ports:
     #   - '8000:80'

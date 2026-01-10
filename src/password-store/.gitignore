@@ -1,4 +1,16 @@
+# Environment variables (git-ignored)
 .env
 .env.local
 .env.*.local
-vaultwarden/
+
+# Volume data directories
+docker-volumes/
+
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
