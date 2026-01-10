@@ -41,6 +41,11 @@ if [ ! -f "$BASE_DIR/media/config/qbittorrent/qBittorrent/categories.json" ]; th
   echo "  ✓ Copied categories.json"
 fi
 
+# Set ownership for entire media stack to UID/GID 911 (linuxserver default)
+echo ""
+echo "Setting ownership to 911:911..."
+chown -R 911:911 "$BASE_DIR/media"
+
 echo ""
 echo "✓ Directory structure created successfully:"
 tree -L 3 "$BASE_DIR" 2>/dev/null || find "$BASE_DIR" -type d | sort

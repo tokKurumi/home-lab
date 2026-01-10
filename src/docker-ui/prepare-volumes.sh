@@ -10,16 +10,16 @@ BASE_DIR="${HOST_VOLUMES_DIR:-./docker-volumes}"
 echo "Creating directory structure in: $BASE_DIR"
 
 # Create all required directories
-mkdir -p "$BASE_DIR/proxy/nginx-proxy-manager/data"
-mkdir -p "$BASE_DIR/proxy/nginx-proxy-manager/letsencrypt"
+mkdir -p "$BASE_DIR/docker-ui/portainer"
 
-# Set ownership for entire proxy stack to UID/GID 911 (linuxserver default)
+# Set ownership for entire docker-ui stack to UID/GID 911 (linuxserver default)
 echo ""
 echo "Setting ownership to 911:911..."
-chown -R 911:911 "$BASE_DIR/proxy"
+chown -R 911:911 "$BASE_DIR/docker-ui"
 
+echo ""
 echo "✓ Directory structure created successfully:"
-tree -L 4 "$BASE_DIR" 2>/dev/null || find "$BASE_DIR" -type d | sort
+tree -L 3 "$BASE_DIR" 2>/dev/null || find "$BASE_DIR" -type d | sort
 
 echo ""
 echo "You can now run:"
