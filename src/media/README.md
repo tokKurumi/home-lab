@@ -19,34 +19,28 @@ A comprehensive automated media management and streaming stack with VPN protecti
 
 ### Setup
 
-1. **Copy environment file**:
+1. **Prepare volumes**:
    ```bash
-   cp .env.example .env
+   ./prepare-volumes.sh
    ```
 
-2. **Start services** (choose one option below):
+2. **Start services** (choose qBittorrent mode):
 
-   **Option 1: Named Volumes with Custom Path** (Recommended)
+   **Direct Access** (no VPN - default, fastest)
    ```bash
-   # Update .env with storage path
-   # HOST_VOLUMES_DIR=/mnt/big-hard-drive/docker-volumes
-   
    docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
    ```
 
-   **Option 2: Bind Mounts** (Alternative)
+   **Via VPN** (encrypted, private - recommended for torrenting)
    ```bash
-   # Update .env with specific paths
-   # HOST_JELLYFIN_CONFIG=...
-   # HOST_MEDIA_DATA=...
-   
-   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+   docker compose -f docker-compose.yml -f docker-compose.volumes.yml --profile vpn -f docker-compose.qbit-vpn.yml up -d
    ```
 
-   **Option 3: Docker-managed Volumes** (Not Recommended)
+   **Switching modes** (without data loss):
    ```bash
-   # Data stored on system drive in /var/lib/docker/volumes/
-   docker compose -f docker-compose.yml up -d
+   # Switch from direct to VPN
+   docker compose -f docker-compose.yml -f docker-compose.volumes.yml down
+   docker compose -f docker-compose.yml -f docker-compose.volumes.yml --profile vpn -f docker-compose.qbit-vpn.yml up -d
    ```
 
 ## Storage Configuration
@@ -145,6 +139,73 @@ Key variables:
 -   **User/System**: `PUID`, `PGID` (find with `id -u` and `id -g`), `TZ`
 
 See `.env.example` for all available options.
+
+## qBittorrent Network Mode
+
+By default, qBittorrent runs without VPN for direct network access. You can optionally enable WireGuard VPN:
+
+### Direct Access (Default - No VPN)
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+```
+
+**Benefits**:
+- ✅ Fastest speeds (no encryption overhead)
+- ✅ Simpler setup
+- ✅ Direct access: `http://localhost:8080`
+
+**Ports exposed**:
+- `8080`: Web UI (HTTP)
+- `6881`: Torrent connections (TCP/UDP)
+
+### Via VPN (Optional - Private & Encrypted)
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml --profile vpn -f docker-compose.qbit-vpn.yml up -d
+```
+
+**Benefits**:
+- ✅ All traffic encrypted and private
+- ✅ IP masked by VPN provider
+- ✅ ISP cannot see your torrent activity
+- ✅ Access via WireGuard container: `http://localhost:8080`
+
+**Requirements**:
+- WireGuard VPN provider account
+- Configure `WIREGUARD_*` variables in `.env`
+
+### Switching Modes
+
+Stop and restart with different configuration:
+
+```bash
+# Stop current stack
+docker compose down
+
+# Start with VPN
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml --profile vpn -f docker-compose.qbit-vpn.yml up -d
+
+# Switch back to direct (no data loss, all configuration preserved)
+docker compose down
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+```
+
+**How it works**:
+- Docker Compose profiles allow conditional service startup
+- `--profile vpn` starts only services tagged with `profiles: ["vpn"]`
+- WireGuard is only created when needed
+- Data persists across mode switches
+
+### Storage Strategies
+
+You can also choose how to store data:
+
+| Strategy | Command | Use Case |
+|----------|---------|----------|
+| **Named Volumes** ✅ | `-f docker-compose.volumes.yml` | Recommended - data on custom path |
+| **Bind Mounts** | `-f docker-compose.bind.yml` | Advanced - per-volume customization |
+| **Docker Volumes** ⚠️ | *(no override)* | Testing only - system drive storage |
 
 ### WireGuard VPN Setup
 

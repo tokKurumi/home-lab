@@ -1,0 +1,15 @@
+# Override for qBittorrent via VPN (WireGuard)
+# Use when you want all qBittorrent traffic encrypted through VPN
+#
+# Usage (with VPN):
+#   docker compose -f docker-compose.yml -f docker-compose.volumes.yml --profile vpn -f docker-compose.qbit-vpn.yml up -d
+#
+# This routes all qBittorrent traffic through WireGuard VPN
+
+services:
+  qbittorrent:
+    # Route all traffic through WireGuard
+    network_mode: service:wireguard
+    
+    depends_on:
+      - wireguard

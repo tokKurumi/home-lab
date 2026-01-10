@@ -4,6 +4,8 @@ services:
     container_name: wireguard
     cap_add:
       - NET_ADMIN
+    profiles:
+      - vpn  # Only start with: docker compose --profile vpn up
     env_file:
       - path: .env
         required: false
@@ -35,16 +37,16 @@ services:
     volumes:
       - qbittorrent-config:/config
       - media-data:/media
-    # Uncomment these if you want to expose qBittorrent outside the VPN
-    # Don't forget to remove `network_mode: service:wireguard` if you do this
+    # Default: direct access (no VPN)
+    # To use VPN: add --profile vpn when starting
     # ports:
-    #   # - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # qBittorrent Web UI
-    #   - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881} # torrent connections TCP
-    #   - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881}/udp # torrent connections UDP
-    network_mode: service:wireguard
-    depends_on:
-      - wireguard
+    #   - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080}
+    #   - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881}
+    #   - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881}/udp
     restart: unless-stopped
+    networks:
+      - media_network
+      - proxiable
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
