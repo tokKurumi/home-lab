@@ -1,12 +1,13 @@
 services:
-  speedtest:
+  openspeedtest:
     container_name: openspeedtest
     image: openspeedtest/latest
     restart: unless-stopped
     volumes:
       - appdata:/appdata
     env_file:
-      - .env
+      - path: .env
+        required: false
     # Uncomment to expose speedtest on ports 3000 http and 3001 https
     # ports:
     #   - '3000:3000'

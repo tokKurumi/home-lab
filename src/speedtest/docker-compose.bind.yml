@@ -1,10 +1,17 @@
-# Override file for bind-mount storage
-# Usage: docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+# Bind-mount override for OpenSpeedTest (ADVANCED)
+# Use this file for maximum flexibility - configure volume path independently
 #
-# This replaces the named volume `appdata` with a host bind-mount,
-# allowing you to store data in a specific directory (e.g., NAS, local SSD).
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+#
+# Benefits:
+#   - Point volume to different drives/NAS shares
+#   - Full control over storage location
+#   - Can use network storage (NFS, CIFS/SMB)
+#
+# Note: Path matches docker-compose.volumes.yml structure but allows per-volume customization
 
 services:
-  speedtest:
+  openspeedtest:
     volumes:
-      - ${HOST_SPEEDTEST_APPDATA:-./speedtest/appdata}:/appdata
+      - ${HOST_SPEEDTEST_APPDATA:-./docker-volumes/speedtest/openspeedtest/appdata}:/appdata

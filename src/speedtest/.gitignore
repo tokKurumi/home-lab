@@ -1,4 +1,15 @@
+# Environment variables (git-ignored)
 .env
 .env.local
 .env.*.local
-speedtest/
+
+# Volume data directories
+docker-volumes/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
