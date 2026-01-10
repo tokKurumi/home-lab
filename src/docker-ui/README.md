@@ -4,19 +4,18 @@ A lightweight Docker UI management interface for easily managing containers, ima
 
 ## Quick Start
 
-**Default setup (named volume)**:
-
 ```bash
+# Named volumes with custom path (recommended)
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+
+# Or: Bind mounts for advanced per-service customization
+docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+
+# Or: Docker-managed volumes (testing only, not recommended)
 docker compose up -d
 ```
 
-**With custom storage path** (e.g., NAS, external drive):
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-```
-
-Then access Portainer at http://localhost:9000 (if port is uncommented in `docker-compose.yml`).
+Access Portainer at http://localhost:9000 (if port is uncommented in `docker-compose.yml`).
 
 ## Ports
 
@@ -24,73 +23,96 @@ Then access Portainer at http://localhost:9000 (if port is uncommented in `docke
     -   Uncomment `ports:` section in `docker-compose.yml` to expose
     -   Intended for use with reverse proxy (e.g., via `proxiable` network)
 
-## Configuration
+## Storage Strategies
 
-### Environment Variables
+| Strategy | Command | Use Case |
+|----------|---------|----------|
+| **Named Volumes** ✅ | `-f docker-compose.volumes.yml` | Recommended - data on custom path |
+| **Bind Mounts** | `-f docker-compose.bind.yml` | Advanced - direct path control |
+| **Docker Volumes** ⚠️ | *(no override)* | Testing only - system drive |
+
+### Named Volumes with Custom Path (Recommended) ✅
+
+Data stored in `./docker-volumes/docker-ui/portainer` (or custom path):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+```
+
+**Benefits**:
+- ✅ Single `HOST_VOLUMES_DIR` variable controls all stacks
+- ✅ Portable between hosts
+- ✅ Easy migration: change variable, copy directory
+- ✅ Works with NAS, external drives, cloud mounts
+
+**Custom storage path** (via `.env`):
+
+```env
+HOST_VOLUMES_DIR=/mnt/nas/docker-volumes
+```
+
+Default: `./docker-volumes`
+
+### Bind Mounts (Advanced - Per-Service Control)
+
+Direct host path for fine-grained control:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+```
+
+**Configure in `.env`**:
+
+```env
+HOST_PORTAINER_DATA=/mnt/nas/docker-ui/portainer
+# or relative:
+# HOST_PORTAINER_DATA=./docker-volumes/docker-ui/portainer
+```
+
+**Benefits**:
+- ✅ Individual variable per volume
+- ✅ Mix multiple storage backends
+- ✅ Full control over paths
+
+### Docker-Managed Volumes (Not Recommended) ⚠️
+
+System-managed volumes in `/var/lib/docker/volumes/`:
+
+```bash
+docker compose up -d
+```
+
+**Limitations**:
+- ❌ Hard to find data on disk
+- ❌ Not portable between hosts
+- ❌ Difficult to migrate
+
+**Only use for**: Testing, temporary deployments
+
+## Configuration
 
 All configuration is in `.env`:
 
--   **`HOST_PORTAINER_DATA`**: Path for bind-mount storage (optional)
+-   **`HOST_VOLUMES_DIR`**: Base directory for all volumes (named volumes profile)
+    -   Examples: `./docker-volumes`, `/mnt/nas/docker-volumes`, `/mnt/storage/docker-volumes`
 
-    -   Only needed if using `docker-compose.bind.yml` override
-    -   Examples: `./portainer/data`, `/mnt/nas/portainer/data`, `C:\data\portainer`
+-   **`HOST_PORTAINER_DATA`**: Custom path for Portainer data (bind mounts profile only)
+    -   Examples: `/mnt/nas/docker-ui/portainer`, `./docker-volumes/docker-ui/portainer`
 
 -   **`TZ`**: Timezone for Portainer (optional, defaults to `Europe/Moscow`)
     -   Examples: `UTC`, `America/New_York`, `Europe/London`
 
 See `.env.example` for all available options.
 
-## Storage
+## Setup
 
-### Default: Named Volume (Recommended for most users)
-
-Docker manages the volume automatically:
+Prepare volume directories:
 
 ```bash
-docker compose up -d
+./prepare-volumes.sh
 ```
 
-**Advantages**:
-
--   Zero configuration
--   Automatic backup with Docker commands
--   Portable across systems
--   Works immediately after cloning
-
-**View volume location**:
-
-```bash
-docker volume inspect data
-```
-
-**Backup the volume**:
-
-```bash
-docker run --rm -v data:/data -v $(pwd):/backup alpine tar czf /backup/portainer-data-backup.tar.gz -C /data .
-```
-
-### Advanced: Bind Mount (For custom storage paths)
-
-Store data in a specific directory on your host (local SSD, NAS mount, etc.):
-
-1. **Edit `.env`**:
-
-    ```env
-    HOST_PORTAINER_DATA=/mnt/nas/portainer/data
-    # or for relative path:
-    # HOST_PORTAINER_DATA=./portainer/data
-    ```
-
-2. **Start with override**:
-    ```bash
-    docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-    ```
-
-**Advantages**:
-
--   Full control over storage location
--   Easy to back up / migrate data via filesystem commands
--   Integration with NAS (NFS, CIFS/SMB) or cloud mounts
+This creates the necessary directory structure with proper permissions.
 
 ## Networking
 

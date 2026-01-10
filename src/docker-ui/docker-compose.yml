@@ -8,7 +8,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - data:/data
     env_file:
-      - .env
+      - path: .env
+        required: false
     # Uncomment to expose portainer on port 9000 (http) and 9443 (https)
     # ports:
     #   - '9000:9000'
