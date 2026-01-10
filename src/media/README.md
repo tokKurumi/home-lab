@@ -17,16 +17,88 @@ A comprehensive automated media management and streaming stack with VPN protecti
 
 ## Quick Start
 
-**Default setup (named volumes)**:
+### Setup
 
-```bash
-docker compose up -d
+1. **Copy environment file**:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Start services** (choose one option below):
+
+   **Option 1: Named Volumes with Custom Path** (Recommended)
+   ```bash
+   # Update .env with storage path
+   # HOST_VOLUMES_DIR=/mnt/big-hard-drive/docker-volumes
+   
+   docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+   ```
+
+   **Option 2: Bind Mounts** (Alternative)
+   ```bash
+   # Update .env with specific paths
+   # HOST_JELLYFIN_CONFIG=...
+   # HOST_MEDIA_DATA=...
+   
+   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+   ```
+
+   **Option 3: Docker-managed Volumes** (Not Recommended)
+   ```bash
+   # Data stored on system drive in /var/lib/docker/volumes/
+   docker compose -f docker-compose.yml up -d
+   ```
+
+## Storage Configuration
+
+This stack supports three storage strategies:
+
+| Strategy | Command | Data Location | Use Case |
+|----------|---------|----------------|----------|
+| **Named Volumes with Custom Path** ✅ | `docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d` | `$HOST_VOLUMES_DIR/media/` | **Production** - Recommended for all scenarios |
+| **Bind Mounts** | `docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d` | Multiple paths in `.env` | Simple single-machine setups |
+| **Docker-managed Volumes** ⚠️ | `docker compose -f docker-compose.yml up -d` | `/var/lib/docker/volumes/` | Development/testing only |
+
+### Recommended Setup (Named Volumes)
+
+This approach provides:
+- ✅ Data stored on your chosen drive (external SSD, NAS, etc.)
+- ✅ Named volumes (portable, Docker-native)
+- ✅ Single configuration variable (`HOST_VOLUMES_DIR`)
+- ✅ Easy migration to new servers (change variable, copy data)
+
+**Configuration**:
+
+```env
+# .env
+HOST_VOLUMES_DIR=/mnt/big-hard-drive/docker-volumes
+
+# If not set, defaults to ./docker-volumes in current directory
 ```
 
-**With custom storage path** (e.g., NAS, external drive):
+**How it works**:
+- `docker-compose.yml` defines services and volume names
+- `docker-compose.volumes.yml` maps those named volumes to paths on your disk
+- Docker creates volumes automatically at startup
+- All data persists in `$HOST_VOLUMES_DIR/media/` (or `./docker-volumes/media/` by default)
 
-```bash
-docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+**Volume locations**:
+```
+$HOST_VOLUMES_DIR/media/
+├── config/
+│   ├── wireguard/
+│   ├── qbittorrent/
+│   ├── prowlarr/
+│   ├── lidarr/
+│   ├── radarr/
+│   ├── sonarr/
+│   ├── jellyfin/
+│   └── jellyseerr/
+├── fileflows/
+│   ├── temp/
+│   ├── data/
+│   └── common/
+└── data/                (all media content)
 ```
 
 ## Ports

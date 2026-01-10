@@ -5,7 +5,8 @@ services:
     cap_add:
       - NET_ADMIN
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - INTERNAL_SUBNET=10.13.13.0
       - ALLOWEDIPS=0.0.0.0/0,::/0
@@ -26,16 +27,20 @@ services:
     image: linuxserver/qbittorrent:latest
     container_name: qbittorrent
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - WEBUI_PORT=${QBIT_WEBUI_PORT:-8080}
       - TORRENTING_PORT=${QBIT_CONNECTION_PORT:-6881}
     volumes:
       - qbittorrent-config:/config
       - media-data:/media
-    ports:
-      - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881} # torrent connections TCP
-      - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881}/udp # torrent connections UDP
+    # Uncomment these if you want to expose qBittorrent outside the VPN
+    # Don't forget to remove `network_mode: service:wireguard` if you do this
+    # ports:
+    #   # - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # qBittorrent Web UI
+    #   - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881} # torrent connections TCP
+    #   - ${QBIT_CONNECTION_PORT:-6881}:${QBIT_CONNECTION_PORT:-6881}/udp # torrent connections UDP
     network_mode: service:wireguard
     depends_on:
       - wireguard
@@ -47,7 +52,8 @@ services:
     image: linuxserver/prowlarr:latest
     container_name: prowlarr
     env_file:
-      - .env
+      - path: .env
+        required: false
     volumes:
       - prowlarr-config:/config
     # ports:
@@ -63,7 +69,8 @@ services:
     image: linuxserver/lidarr:latest
     container_name: lidarr
     env_file:
-      - .env
+      - path: .env
+        required: false
     volumes:
       - lidarr-config:/config
       - media-data:/media
@@ -80,7 +87,8 @@ services:
     image: linuxserver/radarr:latest
     container_name: radarr
     env_file:
-      - .env
+      - path: .env
+        required: false
     volumes:
       - radarr-config:/config
       - media-data:/media
@@ -97,7 +105,8 @@ services:
     image: linuxserver/sonarr:latest
     container_name: sonarr
     env_file:
-      - .env
+      - path: .env
+        required: false
     volumes:
       - sonarr-config:/config
       - media-data:/media
@@ -114,7 +123,8 @@ services:
     image: revenz/fileflows:stable
     container_name: fileflows
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
       - NVIDIA_VISIBLE_DEVICES=all
@@ -137,7 +147,8 @@ services:
     image: linuxserver/jellyfin:latest
     container_name: jellyfin
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
       - NVIDIA_VISIBLE_DEVICES=all
@@ -159,7 +170,8 @@ services:
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - FORCE_IPV4_FIRST=true
     volumes:
@@ -179,7 +191,8 @@ services:
     image: ghcr.io/manuel-rw/jellyfin-discord-music-bot:latest
     container_name: jellyfin-discord-music-bot
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - JELLYFIN_SERVER_ADDRESS=http://jellyfin:8096
       - UPDATER_DISABLE_NOTIFICATIONS=true
@@ -193,6 +206,8 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
 volumes:
+  # Volume definitions moved to docker-compose.volumes.yml
+  # These are referenced below but defined with driver options in the volumes override file
   wireguard-config:
   qbittorrent-config:
   prowlarr-config:

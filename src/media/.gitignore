@@ -3,8 +3,8 @@
 .env.local
 .env.*.local
 
-# Bind-mount data directories
-media/
+# Data directories
+docker-volumes/
 
 # Logs
 *.log

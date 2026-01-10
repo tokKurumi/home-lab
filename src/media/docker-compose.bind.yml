@@ -1,54 +1,58 @@
-# Bind-mount override for Media Stack
-# Use this file together with docker-compose.yml to store data on specific paths (NAS, external drive, etc.)
+# Bind-mount override for Media Stack (ADVANCED)
+# Use this file for maximum flexibility - configure each volume path independently
 #
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
 #
-# Or with environment variables:
-#   HOST_MEDIA_DATA=/mnt/nas/media docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+# Benefits:
+#   - Point different services to different drives/NAS shares
+#   - Granular control over each service's storage location
+#   - Can mix local and network storage per service
+#
+# Note: Paths match docker-compose.volumes.yml structure but allow per-service customization
 
 services:
   wireguard:
     volumes:
-      - ${HOST_WIREGUARD_CONFIG:-./media/configs/wireguard}:/config
+      - ${HOST_WIREGUARD_CONFIG:-./docker-volumes/media/config/wireguard}:/config
 
   qbittorrent:
     volumes:
-      - ${HOST_QBITTORRENT_CONFIG:-./media/configs/qbittorrent}:/config
-      - ${HOST_MEDIA_DATA:-./media/data}:/media
+      - ${HOST_QBITTORRENT_CONFIG:-./docker-volumes/media/config/qbittorrent}:/config
+      - ${HOST_MEDIA_DATA:-./docker-volumes/media/data}:/media
 
   prowlarr:
     volumes:
-      - ${HOST_PROWLARR_CONFIG:-./media/configs/prowlarr}:/config
+      - ${HOST_PROWLARR_CONFIG:-./docker-volumes/media/config/prowlarr}:/config
 
   lidarr:
     volumes:
-      - ${HOST_LIDARR_CONFIG:-./media/configs/lidarr}:/config
-      - ${HOST_MEDIA_DATA:-./media/data}:/media
+      - ${HOST_LIDARR_CONFIG:-./docker-volumes/media/config/lidarr}:/config
+      - ${HOST_MEDIA_DATA:-./docker-volumes/media/data}:/media
 
   radarr:
     volumes:
-      - ${HOST_RADARR_CONFIG:-./media/configs/radarr}:/config
-      - ${HOST_MEDIA_DATA:-./media/data}:/media
+      - ${HOST_RADARR_CONFIG:-./docker-volumes/media/config/radarr}:/config
+      - ${HOST_MEDIA_DATA:-./docker-volumes/media/data}:/media
 
   sonarr:
     volumes:
-      - ${HOST_SONARR_CONFIG:-./media/configs/sonarr}:/config
-      - ${HOST_MEDIA_DATA:-./media/data}:/media
+      - ${HOST_SONARR_CONFIG:-./docker-volumes/media/config/sonarr}:/config
+      - ${HOST_MEDIA_DATA:-./docker-volumes/media/data}:/media
 
   fileflows:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${HOST_FILEFLOWS_TEMP:-./media/configs/fileflows/temp}:/temp
-      - ${HOST_FILEFLOWS_DATA:-./media/configs/fileflows/data}:/app/Data
-      - ${HOST_FILEFLOWS_COMMON:-./media/configs/fileflows/common}:/app/common
-      - ${HOST_MEDIA_DATA:-./media/data}:/media
+      - ${HOST_FILEFLOWS_TEMP:-./docker-volumes/media/fileflows/temp}:/temp
+      - ${HOST_FILEFLOWS_DATA:-./docker-volumes/media/fileflows/data}:/app/Data
+      - ${HOST_FILEFLOWS_COMMON:-./docker-volumes/media/fileflows/common}:/app/common
+      - ${HOST_MEDIA_DATA:-./docker-volumes/media/data}:/media
 
   jellyfin:
     volumes:
-      - ${HOST_JELLYFIN_CONFIG:-./media/configs/jellyfin}:/config
-      - ${HOST_MEDIA_DATA:-./media/data}:/media
+      - ${HOST_JELLYFIN_CONFIG:-./docker-volumes/media/config/jellyfin}:/config
+      - ${HOST_MEDIA_DATA:-./docker-volumes/media/data}:/media
 
   jellyseerr:
     volumes:
-      - ${HOST_JELLYSEERR_CONFIG:-./media/configs/jellyseerr}:/app/config
+      - ${HOST_JELLYSEERR_CONFIG:-./docker-volumes/media/config/jellyseerr}:/app/config

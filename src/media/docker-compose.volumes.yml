@@ -1,0 +1,93 @@
+# Named volumes with local driver pointing to external storage
+# This file defines volumes that will be stored on the path specified by HOST_VOLUMES_DIR
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+#
+# Set HOST_VOLUMES_DIR in .env file or it will default to ./docker-volumes
+# The volumes will be created automatically with the device path from HOST_VOLUMES_DIR
+
+volumes:
+  wireguard-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/wireguard
+
+  qbittorrent-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/qbittorrent
+
+  prowlarr-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/prowlarr
+
+  lidarr-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/lidarr
+
+  radarr-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/radarr
+
+  sonarr-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/sonarr
+
+  fileflows-temp:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/fileflows/temp
+
+  fileflows-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/fileflows/data
+
+  fileflows-common:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/fileflows/common
+
+  jellyfin-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/jellyfin
+
+  jellyseerr-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/jellyseerr
+
+  media-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/data
