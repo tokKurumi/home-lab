@@ -3,8 +3,8 @@
 .env.local
 .env.*.local
 
-# Bind-mount data directories
-monitoring/
+# Docker volumes directory
+docker-volumes/
 
 # Logs
 *.log
@@ -13,3 +13,9 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Grafana config specific files
+config/grafana.ini
+
+# Prometheus config specific files
+config/prometheus.yaml

@@ -11,8 +11,22 @@ A comprehensive monitoring stack for observing system and container metrics.
 
 ## Quick Start
 
+**Default setup (named volume)**:
+
 ```bash
-docker compose -f src/monitoring/docker-compose.yml up -d
+docker compose up -d
+```
+
+**With custom storage path** (e.g., NAS, external drive):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+```
+
+Or for maximum flexibility (per-service paths):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
 ```
 
 ## Ports
@@ -26,42 +40,70 @@ docker compose -f src/monitoring/docker-compose.yml up -d
 
 ### Environment Variables
 
-All variables are set in the `.env` file:
+All configuration is in `.env`:
 
-```bash
-cp .env.example .env
-# Edit .env if needed
-```
+-   **`HOST_VOLUMES_DIR`**: Base directory for named volumes with custom path (optional)
+    -   Only needed if using `docker-compose.volumes.yml` override
+    -   Default: `./docker-volumes` (relative to docker-compose file)
+    -   Examples: `./docker-volumes`, `/mnt/nas/docker-volumes`, `/mnt/external-drive/docker-volumes`
+
+-   **`HOST_GRAFANA_DATA`**: Path for Grafana bind-mount storage (optional)
+    -   Only needed if using `docker-compose.bind.yml` override
+    -   Default: `./docker-volumes/monitoring/grafana`
+    -   Examples: `/mnt/nas/grafana`, `/mnt/external-drive/grafana`
+
+-   **`HOST_PROMETHEUS_DATA`**: Path for Prometheus bind-mount storage (optional)
+    -   Only needed if using `docker-compose.bind.yml` override
+    -   Default: `./docker-volumes/monitoring/prometheus`
+    -   Examples: `/mnt/nas/prometheus`, `/mnt/external-drive/prometheus`
+
+-   **`GF_SECURITY_ADMIN_USER`**: Grafana admin username (default: `admin`)
+-   **`GF_SECURITY_ADMIN_PASSWORD`**: Grafana admin password (default: `admin`, should be changed!)
+-   **`GF_INSTANCE_NAME`**: Grafana instance name (default: `Home Lab Monitoring`)
+
+See `.env.example` for all available options.
 
 ### Data Storage
 
-**Default (named volumes)**:
+**Default: Named Volume**:
 
 ```bash
-docker compose -f docker-compose.yml up -d
+docker compose up -d
 ```
 
 Data is stored in named volumes `grafana-data` and `prometheus-data` (Docker-managed).
 
-**Alternative: Bind-mount** (to store data on specific paths, NAS, etc.):
+**Recommended: Named Volume with Custom Path**:
 
-```bash
-# Edit .env and set HOST_GRAFANA_DATA and HOST_PROMETHEUS_DATA
+1. **Edit `.env`**:
 
-# Run with override file:
-docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-```
+    ```env
+    HOST_VOLUMES_DIR=/mnt/nas/docker-volumes
+    # or for relative path:
+    # HOST_VOLUMES_DIR=./docker-volumes
+    ```
 
-Example `.env`:
+2. **Start with volumes override**:
+    ```bash
+    docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+    ```
 
-```env
-HOST_GRAFANA_DATA=./monitoring/grafana/data
-HOST_PROMETHEUS_DATA=./monitoring/prometheus/data
+**Advanced: Bind Mount** (for per-service control):
 
-# Or with NAS:
-# HOST_GRAFANA_DATA=/mnt/nas/monitoring/grafana/data
-# HOST_PROMETHEUS_DATA=/mnt/nas/monitoring/prometheus/data
-```
+1. **Edit `.env`**:
+
+    ```env
+    HOST_GRAFANA_DATA=/mnt/nas/grafana
+    HOST_PROMETHEUS_DATA=/mnt/nas/prometheus
+    # or for relative paths:
+    # HOST_GRAFANA_DATA=./docker-volumes/monitoring/grafana
+    # HOST_PROMETHEUS_DATA=./docker-volumes/monitoring/prometheus
+    ```
+
+2. **Start with bind-mount override**:
+    ```bash
+    docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+    ```
 
 ## Configuration Files
 
@@ -111,3 +153,4 @@ To access Grafana through Nginx Proxy Manager:
 1. Uncomment ports for Grafana in docker-compose.yml
 2. Or use Nginx as a reverse proxy with container name: `http://grafana:3000`
 3. Ensure Nginx is in the `proxiable` network or connected to it
+4. **Important**: Set `root_url` in `config/grafana.ini` to match your reverse proxy domain (e.g., `https://monitoring.example.com/`)

@@ -1,22 +1,21 @@
-# Bind-mount override for Monitoring Stack
-# Use this file together with docker-compose.yml to store data on specific paths (NAS, external drive, etc.)
+# Bind-mount override for Monitoring Stack (ADVANCED)
+# Use this file for maximum flexibility - configure volume paths independently
 #
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
 #
-# Or with environment variables:
-#   HOST_GRAFANA_DATA=/mnt/nas/monitoring/grafana docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+# Benefits:
+#   - Store data in specific directories (local, NAS, cloud mount)
+#   - Full control over storage location
+#   - Can use network storage (NFS, CIFS/SMB)
+#
+# Note: Default paths match docker-compose.volumes.yml structure
 
 services:
   grafana:
     volumes:
-      - ./config/grafana.ini:/etc/grafana/grafana.ini:ro
-      - ./config/provisioning/alerting:/etc/grafana/provisioning/alerting:ro
-      - ./config/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${HOST_GRAFANA_DATA:-./monitoring/grafana/data}:/var/lib/grafana
+      - ${HOST_GRAFANA_DATA:-./docker-volumes/monitoring/grafana}:/var/lib/grafana
 
   prometheus:
     volumes:
-      - ./config/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
-      - ${HOST_PROMETHEUS_DATA:-./monitoring/prometheus/data}:/prometheus
+      - ${HOST_PROMETHEUS_DATA:-./docker-volumes/monitoring/prometheus}:/prometheus
