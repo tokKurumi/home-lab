@@ -6,5 +6,11 @@
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
-      - .env
+      - path: .env
+        required: false
+    environment:
+      - WATCHTOWER_CLEANUP=${WATCHTOWER_CLEANUP:-true}
+      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_POLL_INTERVAL:-86400}
+      - WATCHTOWER_INCLUDE_STOPPED=${WATCHTOWER_INCLUDE_STOPPED:-true}
+      - WATCHTOWER_REVIVE_STOPPED=${WATCHTOWER_REVIVE_STOPPED:-true}
     command: --label-enable
