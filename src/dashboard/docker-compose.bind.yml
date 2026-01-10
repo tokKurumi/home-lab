@@ -1,11 +1,16 @@
-# Override file for bind-mount storage
+# Override file for bind-mount storage (per-service path configuration)
 # Usage: docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
 #
 # This replaces the named volume `appdata` with a host bind-mount,
 # allowing you to store data in a specific directory (e.g., NAS, local SSD).
+#
+# Configure paths in .env file:
+#   HOST_HOMARR_APPDATA=/mnt/storage/dashboard/homarr
+#
+# Default path (if not set): ./docker-volumes/dashboard/homarr
 
 services:
   homarr:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${HOST_APPDATA:-./homarr/appdata}:/appdata
+      - ${HOST_HOMARR_APPDATA:-./docker-volumes/dashboard/homarr}:/appdata

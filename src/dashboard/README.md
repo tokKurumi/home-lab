@@ -4,93 +4,114 @@ A customizable, self-hosted dashboard to monitor and control home lab services.
 
 ## Quick Start
 
-**Default setup (named volume)**:
-
 ```bash
+# Named volumes with custom path (recommended)
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+
+# Or: Bind mounts for advanced per-service customization
+docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+
+# Or: Docker-managed volumes (testing only, not recommended)
 docker compose up -d
 ```
 
-**With custom storage path** (e.g., NAS, external drive):
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-```
-
-Then access the dashboard at http://localhost:7575 (if port is uncommented in `docker-compose.yml`).
+Access the dashboard at http://localhost:7575 (if port is uncommented in `docker-compose.yml`).
 
 ## Ports
 
 -   **Web UI**: http://localhost:7575 (commented out by default)
     -   Uncomment `ports:` section in `docker-compose.yml` to expose
 
-## Configuration
+## Storage Strategies
 
-### Environment Variables
+| Strategy | Command | Use Case |
+|----------|---------|----------|
+| **Named Volumes** ✅ | `-f docker-compose.volumes.yml` | Recommended - data on custom path |
+| **Bind Mounts** | `-f docker-compose.bind.yml` | Advanced - direct path control |
+| **Docker Volumes** ⚠️ | *(no override)* | Testing only - system drive |
 
-All configuration is in `.env`:
+### Named Volumes with Custom Path (Recommended) ✅
 
--   **`SECRET_ENCRYPTION_KEY`**: Encryption key for dashboard data (required)
+Data stored in `./docker-volumes/dashboard/homarr` (or custom path):
 
-    -   Generate with: `openssl rand -hex 32`
-    -   See `.env.example` for details
+```bash
+docker compose -f docker-compose.yml -f docker-compose.volumes.yml up -d
+```
 
--   **`HOST_APPDATA`**: Path for bind-mount storage (optional)
-    -   Only needed if using `docker-compose.bind.yml` override
-    -   Examples: `./homarr/appdata`, `/mnt/nas/homarr`, `C:\data\homarr`
+**Benefits**:
+- ✅ Single `HOST_VOLUMES_DIR` variable controls all stacks
+- ✅ Portable between hosts
+- ✅ Easy migration: change variable, copy directory
+- ✅ Works with NAS, external drives, cloud mounts
 
-See `.env.example` for all available options.
+**Custom storage path** (via `.env`):
 
-## Storage
+```env
+HOST_VOLUMES_DIR=/mnt/nas/docker-volumes
+```
 
-### Default: Named Volume (Recommended for most users)
+Default: `./docker-volumes`
 
-Docker manages the volume automatically:
+### Bind Mounts (Advanced - Per-Service Control)
+
+Direct host path for fine-grained control:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
+```
+
+**Configure in `.env`**:
+
+```env
+HOST_HOMARR_APPDATA=/mnt/nas/dashboard/homarr
+# or relative:
+# HOST_HOMARR_APPDATA=./docker-volumes/dashboard/homarr
+```
+
+**Benefits**:
+- ✅ Individual variable per volume
+- ✅ Mix multiple storage backends
+- ✅ Full control over paths
+
+### Docker-Managed Volumes (Not Recommended) ⚠️
+
+System-managed volumes in `/var/lib/docker/volumes/`:
 
 ```bash
 docker compose up -d
 ```
 
-**Advantages**:
+**Limitations**:
+- ❌ Hard to find data on disk
+- ❌ Not portable between hosts
+- ❌ Difficult to migrate
 
--   Zero configuration
--   Automatic backup with Docker commands
--   Portable across systems
--   Works immediately after cloning
+**Only use for**: Testing, temporary deployments
 
-**View volume location**:
+## Configuration
+
+All configuration is in `.env`:
+
+-   **`HOST_VOLUMES_DIR`**: Base directory for all volumes (named volumes profile)
+    -   Examples: `./docker-volumes`, `/mnt/nas/docker-volumes`, `/mnt/storage/docker-volumes`
+
+-   **`HOST_HOMARR_APPDATA`**: Custom path for dashboard data (bind mounts profile only)
+    -   Examples: `/mnt/nas/dashboard/homarr`, `./docker-volumes/dashboard/homarr`
+
+-   **`SECRET_ENCRYPTION_KEY`**: Encryption key for dashboard data (required)
+    -   Generate with: `openssl rand -hex 32`
+
+See `.env.example` for all available options.
+
+## Setup
+
+Prepare volume directories:
 
 ```bash
-docker volume inspect appdata
+./prepare-volumes.sh
 ```
 
-**Backup the volume**:
-
-```bash
-docker run --rm -v appdata:/data -v $(pwd):/backup alpine tar czf /backup/appdata-backup.tar.gz -C /data .
-```
-
-### Advanced: Bind Mount (For custom storage paths)
-
-Store data in a specific directory on your host (local SSD, NAS mount, etc.):
-
-1. **Edit `.env`**:
-
-    ```env
-    HOST_APPDATA=/mnt/nas/homarr
-    # or for relative path:
-    # HOST_APPDATA=./homarr/appdata
-    ```
-
-2. **Start with override**:
-    ```bash
-    docker compose -f docker-compose.yml -f docker-compose.bind.yml up -d
-    ```
-
-**Advantages**:
-
--   Full control over storage location
--   Easy to back up / migrate data via filesystem commands
--   Integration with NAS (NFS, CIFS/SMB) or cloud mounts
+This creates the necessary directory structure with proper permissions.
 
 ## Networking
 

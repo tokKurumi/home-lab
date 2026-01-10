@@ -1,1 +1,15 @@
+# Environment variables (git-ignored)
 .env
+.env.local
+.env.*.local
+
+# Data directories
+docker-volumes/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
