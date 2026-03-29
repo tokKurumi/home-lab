@@ -168,18 +168,24 @@ services:
     devices:
       - nvidia.com/gpu=all
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
     env_file:
       - path: .env
         required: false
     environment:
       - FORCE_IPV4_FIRST=true
     volumes:
-      - jellyseerr-config:/app/config
-    # ports:
-    #   - 5055:5055 # uncomment if you want to expose 5055 http
+      - seerr-config:/app/config
+    ports:
+      - 5055:5055 # uncomment if you want to expose 5055 http
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     networks:
       - media_network
       - proxiable
@@ -220,7 +226,7 @@ volumes:
   fileflows-data:
   fileflows-common:
   jellyfin-config:
-  jellyseerr-config:
+  seerr-config:
   media-data:
 
 networks:

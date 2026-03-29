@@ -53,6 +53,6 @@ services:
       - ${HOST_JELLYFIN_CONFIG:-./docker-volumes/media/config/jellyfin}:/config
       - ${HOST_MEDIA_DATA:-./docker-volumes/media/data}:/media
 
-  jellyseerr:
+  seerr:
     volumes:
-      - ${HOST_JELLYSEERR_CONFIG:-./docker-volumes/media/config/jellyseerr}:/app/config
+      - ${HOST_SEERR_CONFIG:-./docker-volumes/media/config/seerr}:/app/config

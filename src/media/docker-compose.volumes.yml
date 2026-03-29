@@ -78,12 +78,12 @@ volumes:
       o: bind
       device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/jellyfin
 
-  jellyseerr-config:
+  seerr-config:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/jellyseerr
+      device: ${HOST_VOLUMES_DIR:-./docker-volumes}/media/config/seerr
 
   media-data:
     driver: local

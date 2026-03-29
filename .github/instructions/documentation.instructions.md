@@ -83,7 +83,7 @@
 
 - Перечень основных сервисов и их назначение:
   - **Прокси/Маршрутизация**: Nginx Proxy Manager, WireGuard
-  - **Управление медиа**: Prowlarr, Sonarr, Radarr, Lidarr, qBittorrent, Jellyseerr
+  - **Управление медиа**: Prowlarr, Sonarr, Radarr, Lidarr, qBittorrent, Seerr
   - **Потоковая передача**: Jellyfin, Discord Music Bot
   - **Обработка данных**: FileFlows
   - **Мониторинг**: Prometheus, Grafana, Node Exporter, cAdvisor
@@ -133,7 +133,7 @@
 
 **Что включить в инструкцию**:
 - Цепочка взаимодействия для скачивания и управления медиа:
-  0. Пользователь запрашивает контент через Jellyseerr
+  0. Пользователь запрашивает контент через Seerr
   1. Prowlarr выполняет поиск по индексерам
   2. Sonarr/Radarr/Lidarr инициируют загрузку через Prowlarr
   3. qBittorrent (через WireGuard) скачивает контент

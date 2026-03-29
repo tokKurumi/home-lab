@@ -12,7 +12,7 @@ A comprehensive automated media management and streaming stack with VPN protecti
 -   **Lidarr**: Music automation and management
 -   **FileFlows**: Automated media file processing and transcoding
 -   **Jellyfin**: Media streaming server with hardware acceleration
--   **Jellyseerr**: User request management for media content
+-   **Seerr**: User request management for media content
 -   **Discord Music Bot**: Play music from Jellyfin in Discord voice channels
 
 ## Quick Start
@@ -87,7 +87,7 @@ $HOST_VOLUMES_DIR/media/
 │   ├── radarr/
 │   ├── sonarr/
 │   ├── jellyfin/
-│   └── jellyseerr/
+│   └── seerr/
 ├── fileflows/
 │   ├── temp/
 │   ├── data/
@@ -106,7 +106,7 @@ $HOST_VOLUMES_DIR/media/
 -   **Jellyfin**: http://localhost:8096 (hidden by default, access via reverse proxy)
     -   Local discovery: UDP 7359
     -   DLNA: UDP 1900
--   **Jellyseerr**: http://localhost:5055 (hidden by default, access via reverse proxy)
+-   **Seerr**: http://localhost:5055 (hidden by default, access via reverse proxy)
 
 ## Configuration
 
@@ -252,7 +252,7 @@ docker compose up -d
 -   `wireguard-config`, `qbittorrent-config`, `prowlarr-config`
 -   `lidarr-config`, `radarr-config`, `sonarr-config`
 -   `fileflows-temp`, `fileflows-data`, `fileflows-common`
--   `jellyfin-config`, `jellyseerr-config`
+-   `jellyfin-config`, `seerr-config`
 -   `media-data` (shared by all services for downloads/library)
 
 **View volumes**:
@@ -336,7 +336,7 @@ If you don't have an NVIDIA GPU, remove the `devices` and `NVIDIA_*` environment
 3. **Connect Sonarr/Radarr/Lidarr** to Prowlarr and qBittorrent
 4. **Set up FileFlows** processing rules
 5. **Add media libraries** to Jellyfin
-6. **Connect Jellyseerr** to Jellyfin
+6. **Connect Seerr** to Jellyfin
 
 ### Media Organization
 
@@ -388,9 +388,9 @@ To access services through Nginx Proxy Manager:
 -   Container name: `http://jellyfin:8096`
 -   Recommended domain: `jellyfin.lan` or `jellyfin.example.com`
 
-### Jellyseerr (Request Manager)
+### Seerr (Request Manager)
 
--   Container name: `http://jellyseerr:5055`
+-   Container name: `http://seerr:5055`
 -   Recommended domain: `requests.lan` or `requests.example.com`
 
 ### Prowlarr (Indexers)

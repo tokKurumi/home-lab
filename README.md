@@ -95,7 +95,7 @@ Each service is independently deployable. Mix and match to build your setup:
 | **Lidarr** | Music automation & library management |
 | **FileFlows** | Automated transcoding & media processing |
 | **Jellyfin** | Streaming server (hardware-accelerated) |
-| **Jellyseerr** | User request system for media content |
+| **Seerr** | User request system for media content |
 | **Discord Music Bot** | Play Jellyfin music in Discord voice channels |
 
 ### 🔐 **Infrastructure**

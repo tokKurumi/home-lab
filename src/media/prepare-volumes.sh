@@ -17,7 +17,7 @@ mkdir -p "$BASE_DIR/media/config/lidarr"
 mkdir -p "$BASE_DIR/media/config/radarr"
 mkdir -p "$BASE_DIR/media/config/sonarr"
 mkdir -p "$BASE_DIR/media/config/jellyfin"
-mkdir -p "$BASE_DIR/media/config/jellyseerr"
+mkdir -p "$BASE_DIR/media/config/seerr"
 mkdir -p "$BASE_DIR/media/fileflows/temp"
 mkdir -p "$BASE_DIR/media/fileflows/data"
 mkdir -p "$BASE_DIR/media/fileflows/common"
@@ -43,8 +43,14 @@ fi
 
 # Set ownership for entire media stack to UID/GID 911 (linuxserver default)
 echo ""
-echo "Setting ownership to 911:911..."
+echo "Setting ownership to 911:911 (linuxserver default)..."
 chown -R 911:911 "$BASE_DIR/media"
+
+# Seerr switched to running as UID/GID 1000:1000 - ensure its config dir is owned accordingly
+if [ -d "$BASE_DIR/media/config/seerr" ]; then
+  echo "Setting ownership for seerr to 1000:1000..."
+  chown -R 1000:1000 "$BASE_DIR/media/config/seerr"
+fi
 
 echo ""
 echo "✓ Directory structure created successfully:"
