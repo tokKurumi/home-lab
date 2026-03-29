@@ -46,6 +46,8 @@ services:
       - /:/host:ro,rslave
     networks:
       - metrics
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
@@ -62,6 +64,8 @@ services:
     restart: unless-stopped
     networks:
       - metrics
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
   metrics:
