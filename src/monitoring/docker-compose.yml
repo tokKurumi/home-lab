@@ -1,6 +1,7 @@
 services:
   glances:
     image: nicolargo/glances:latest-full
+    container_name: glances
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:61208/api/4/status"]
