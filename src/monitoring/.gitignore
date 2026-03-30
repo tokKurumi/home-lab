@@ -19,3 +19,6 @@ config/grafana.ini
 
 # Prometheus config specific files
 config/prometheus.yaml
+
+# Glances config specific files
+config/glances.conf

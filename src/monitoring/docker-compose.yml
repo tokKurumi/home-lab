@@ -1,4 +1,35 @@
 services:
+  glances:
+    image: nicolargo/glances:latest-full
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:61208/api/4/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    pid: "host"
+    networks:
+      - proxiable
+    read_only: true
+    privileged: false
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/run/user/1000/podman/podman.sock:/run/user/1000/podman/podman.sock:ro"
+      - "/etc/os-release:/etc/os-release:ro"
+      - "./config/glances.conf:/glances/conf/glances.conf"
+    env_file:
+      - path: .env
+        required: false
+    tmpfs:
+      - /tmp
+    environment:
+      - GLANCES_OPT=${GLANCES_OPT:--C /glances/conf/glances.conf}
+      - PYTHONPYCACHEPREFIX=${PYTHONPYCACHEPREFIX:-/tmp/py_caches}
+    devices:
+      - nvidia.com/gpu=all
+
   grafana:
     image: docker.io/grafana/grafana-oss
     container_name: grafana
